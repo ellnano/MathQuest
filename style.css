@@ -79,6 +79,28 @@ body {
   opacity: 0.85;
 }
 
+.mode-box {
+  min-width: 220px;
+  display: grid;
+  gap: 8px;
+}
+
+.mode-box label {
+  font-weight: 700;
+}
+
+.phase-select {
+  appearance: none;
+  border: none;
+  outline: none;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: white;
+  color: var(--text);
+  font: inherit;
+  box-shadow: var(--shadow);
+}
+
 .score-box {
   min-width: 120px;
   text-align: center;
@@ -132,6 +154,7 @@ body {
 }
 
 .question-box p {
+  min-height: 1.5em;
   margin: 10px 0 0;
   font-size: 1rem;
   opacity: 0.9;
@@ -154,12 +177,21 @@ body {
   align-items: center;
   gap: 16px;
   min-height: 84px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .answer-btn:hover {
   transform: translateY(-4px) scale(1.01);
   box-shadow: 0 22px 44px rgba(36, 67, 92, 0.2);
+}
+
+.answer-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.95;
+}
+
+.answer-btn.wrong {
+  box-shadow: 0 0 0 4px rgba(255, 122, 182, 0.22), var(--shadow);
 }
 
 .option {

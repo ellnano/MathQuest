@@ -1,68 +1,123 @@
-const questions = [
-  {
-    question: "7 + 5 = ?",
-    options: [10, 11, 12, 13],
-    answer: 12,
-  },
-  {
-    question: "9 - 3 = ?",
-    options: [4, 5, 6, 7],
-    answer: 6,
-  },
-  {
-    question: "4 x 2 = ?",
-    options: [6, 7, 8, 9],
-    answer: 8,
-  },
-  {
-    question: "10 + 4 = ?",
-    options: [12, 13, 14, 15],
-    answer: 14,
-  },
-];
+const phaseSelect = document.querySelector('#phase-select');
+const questionTitle = document.querySelector('.question-box h2');
+const questionHint = document.querySelector('.question-box p');
+const scoreValue = document.querySelector('.score-box strong');
+const answerButtons = Array.from(document.querySelectorAll('.answer-btn'));
 
-let currentQuestion = 0;
-let coins = 0;
+let coins = 120;
+let currentQuestion = null;
 
-const questionTitle = document.querySelector(".question-box h2");
-const scoreValue = document.querySelector(".score-box strong");
-const answerButtons = document.querySelectorAll(".answer-btn");
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function shuffle(values) {
+  return values
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map((item) => item.value);
+}
+
+function buildOptions(answer) {
+  const options = new Set([answer]);
+
+  while (options.size < 4) {
+    const direction = Math.random() < 0.5 ? -1 : 1;
+    const magnitude = randomInt(1, Math.max(3, Math.min(9, Math.abs(answer) || 1)));
+    let candidate = answer + direction * magnitude;
+
+    if (candidate < 1) {
+      candidate = answer + magnitude;
+    }
+
+    options.add(candidate);
+  }
+
+  return shuffle(Array.from(options));
+}
+
+function generateMathQuestion(phase) {
+  if (phase === 'phase1') {
+    const operator = Math.random() < 0.5 ? '+' : '-';
+    let left = randomInt(1, 20);
+    let right = randomInt(1, 20);
+
+    if (operator === '-' && left < right) {
+      [left, right] = [right, left];
+    }
+
+    return {
+      text: `${left} ${operator} ${right} = ?`,
+      answer: operator === '+' ? left + right : left - right,
+      hint: 'Fase 1: penjumlahan dan pengurangan angka 1-20.',
+    };
+  }
+
+  const operator = Math.random() < 0.5 ? '×' : '÷';
+
+  if (operator === '×') {
+    const left = randomInt(1, 10);
+    const right = randomInt(1, 10);
+
+    return {
+      text: `${left} × ${right} = ?`,
+      answer: left * right,
+      hint: 'Fase 2: perkalian angka 1-10.',
+    };
+  }
+
+  const divisor = randomInt(1, 10);
+  const quotient = randomInt(1, 10);
+  const dividend = divisor * quotient;
+
+  return {
+    text: `${dividend} ÷ ${divisor} = ?`,
+    answer: quotient,
+    hint: 'Fase 2: pembagian angka 1-10.',
+  };
+}
 
 function renderQuestion() {
-  const q = questions[currentQuestion];
-  questionTitle.textContent = q.question;
+  currentQuestion = generateMathQuestion(phaseSelect.value);
+  questionTitle.textContent = currentQuestion.text;
+  questionHint.textContent = currentQuestion.hint;
 
-  answerButtons.forEach((btn, index) => {
-    btn.querySelector(".value").textContent = q.options[index];
-    btn.classList.remove("correct", "wrong");
-    btn.disabled = false;
+  const options = buildOptions(currentQuestion.answer);
+
+  answerButtons.forEach((button, index) => {
+    button.querySelector('.value').textContent = options[index];
+    button.classList.remove('correct', 'wrong');
+    button.disabled = false;
   });
 }
 
-function nextQuestion() {
-  currentQuestion = (currentQuestion + 1) % questions.length;
-  renderQuestion();
+function lockButtons(isLocked) {
+  answerButtons.forEach((button) => {
+    button.disabled = isLocked;
+  });
 }
 
-answerButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const selected = Number(btn.querySelector(".value").textContent);
-    const correct = questions[currentQuestion].answer;
+phaseSelect.addEventListener('change', renderQuestion);
 
-    answerButtons.forEach((b) => (b.disabled = true));
+answerButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const selected = Number(button.querySelector('.value').textContent);
 
-    if (selected === correct) {
+    lockButtons(true);
+
+    if (selected === currentQuestion.answer) {
       coins += 10;
       scoreValue.textContent = coins;
-      btn.classList.add("correct");
-      setTimeout(nextQuestion, 900);
-    } else {
-      btn.classList.add("wrong");
-      setTimeout(() => {
-        answerButtons.forEach((b) => (b.disabled = false));
-        btn.classList.remove("wrong");
-      }, 700);
+      button.classList.add('correct');
+      setTimeout(renderQuestion, 700);
+      return;
     }
+
+    button.classList.add('wrong');
+    setTimeout(() => {
+      button.classList.remove('wrong');
+      lockButtons(false);
+    }, 500);
   });
 });
 
