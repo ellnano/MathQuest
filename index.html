@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MathQuest</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game">
+    <section class="card topbar">
+      <div class="brand">
+        <div class="logo">MQ</div>
+        <div>
+          <h1>MathQuest</h1>
+          <p>Ayo belajar matematika dengan seru!</p>
+        </div>
+      </div>
+
+      <div class="score-box">
+        <span>Koin</span>
+        <strong>120</strong>
+      </div>
+    </section>
+
+    <section class="card question-area">
+      <div class="mascot" aria-hidden="true">
+        <div class="star star-1"></div>
+        <div class="star star-2"></div>
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="body"></div>
+        <div class="arm arm-left"></div>
+        <div class="arm arm-right"></div>
+        <div class="leg leg-left"></div>
+        <div class="leg leg-right"></div>
+      </div>
+
+      <div class="question-box">
+        <span class="label">Soal</span>
+        <h2>7 + 5 = ?</h2>
+        <p>Pilih jawaban yang benar untuk mendapatkan koin!</p>
+      </div>
+    </section>
+
+    <section class="answers">
+      <button class="answer-btn" type="button">
+        <span class="option">A</span>
+        <span class="value">10</span>
+      </button>
+
+      <button class="answer-btn" type="button">
+        <span class="option">B</span>
+        <span class="value">11</span>
+      </button>
+
+      <button class="answer-btn correct" type="button">
+        <span class="option">C</span>
+        <span class="value">12</span>
+      </button>
+
+      <button class="answer-btn" type="button">
+        <span class="option">D</span>
+        <span class="value">13</span>
+      </button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
