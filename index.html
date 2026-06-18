@@ -25,9 +25,16 @@
         </select>
       </div>
 
-      <div class="score-box">
-        <span>Koin</span>
-        <strong>120</strong>
+      <div class="status-group">
+        <div class="status-box lives-box">
+          <span>Nyawa</span>
+          <strong id="lives-value">3</strong>
+        </div>
+
+        <div class="status-box score-box">
+          <span>Koin</span>
+          <strong id="score-value">120</strong>
+        </div>
       </div>
     </section>
 
@@ -50,7 +57,7 @@
       <div class="question-box">
         <span class="label">Soal</span>
         <h2>7 + 5 = ?</h2>
-        <p>Pilih fase untuk memulai permainan.</p>
+        <p id="feedback-text">Pilih fase untuk memulai permainan.</p>
       </div>
     </section>
 
@@ -76,6 +83,16 @@
       </button>
     </section>
   </main>
+
+  <section class="game-over" id="game-over" aria-hidden="true">
+    <div class="game-over-card">
+      <h2>Game Over</h2>
+      <p>Nyawa habis. Coba main lagi ya!</p>
+      <button class="restart-btn" type="button" id="restart-btn">Main Lagi</button>
+    </div>
+  </section>
+
+  <div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
 
   <script src="script.js"></script>
 </body>

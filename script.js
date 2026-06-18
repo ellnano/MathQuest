@@ -1,11 +1,20 @@
 const phaseSelect = document.querySelector('#phase-select');
 const questionTitle = document.querySelector('.question-box h2');
-const questionHint = document.querySelector('.question-box p');
-const scoreValue = document.querySelector('.score-box strong');
+const questionHint = document.querySelector('#feedback-text');
+const scoreValue = document.querySelector('#score-value');
+const livesValue = document.querySelector('#lives-value');
 const answerButtons = Array.from(document.querySelectorAll('.answer-btn'));
+const gameOverScreen = document.querySelector('#game-over');
+const restartButton = document.querySelector('#restart-btn');
+const confettiLayer = document.querySelector('#confetti-layer');
 
-let coins = 120;
+const START_SCORE = 120;
+const START_LIVES = 3;
+
+let coins = START_SCORE;
+let lives = START_LIVES;
 let currentQuestion = null;
+let gameLocked = false;
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -77,18 +86,36 @@ function generateMathQuestion(phase) {
   };
 }
 
-function renderQuestion() {
-  currentQuestion = generateMathQuestion(phaseSelect.value);
-  questionTitle.textContent = currentQuestion.text;
-  questionHint.textContent = currentQuestion.hint;
+function setFeedback(message, type) {
+  questionHint.textContent = message;
+  questionHint.classList.remove('feedback-correct', 'feedback-wrong');
 
-  const options = buildOptions(currentQuestion.answer);
+  if (type === 'correct') {
+    questionHint.classList.add('feedback-correct');
+  }
 
-  answerButtons.forEach((button, index) => {
-    button.querySelector('.value').textContent = options[index];
-    button.classList.remove('correct', 'wrong');
-    button.disabled = false;
-  });
+  if (type === 'wrong') {
+    questionHint.classList.add('feedback-wrong');
+  }
+}
+
+function burstConfetti() {
+  const colors = ['#ff7ab6', '#ffd166', '#5bd48a', '#4d96ff', '#ff9f1c'];
+
+  for (let index = 0; index < 18; index += 1) {
+    const piece = document.createElement('span');
+    piece.className = 'confetti';
+    piece.style.left = `${randomInt(10, 90)}%`;
+    piece.style.top = `${randomInt(8, 28)}%`;
+    piece.style.background = colors[index % colors.length];
+    piece.style.animationDuration = `${randomInt(700, 1100)}ms`;
+    piece.style.transform = `rotate(${randomInt(0, 180)}deg)`;
+    confettiLayer.appendChild(piece);
+
+    window.setTimeout(() => {
+      piece.remove();
+    }, 1200);
+  }
 }
 
 function lockButtons(isLocked) {
@@ -97,28 +124,99 @@ function lockButtons(isLocked) {
   });
 }
 
-phaseSelect.addEventListener('change', renderQuestion);
+function updateStatus() {
+  scoreValue.textContent = String(coins);
+  livesValue.textContent = String(lives);
+}
+
+function showGameOver() {
+  gameLocked = true;
+  lockButtons(true);
+  gameOverScreen.classList.add('active');
+  gameOverScreen.setAttribute('aria-hidden', 'false');
+}
+
+function hideGameOver() {
+  gameOverScreen.classList.remove('active');
+  gameOverScreen.setAttribute('aria-hidden', 'true');
+}
+
+function renderQuestion() {
+  currentQuestion = generateMathQuestion(phaseSelect.value);
+  questionTitle.textContent = currentQuestion.text;
+  setFeedback(currentQuestion.hint, '');
+
+  const options = buildOptions(currentQuestion.answer);
+
+  answerButtons.forEach((button, index) => {
+    button.querySelector('.value').textContent = options[index];
+    button.classList.remove('correct', 'wrong');
+    button.disabled = false;
+  });
+
+  gameLocked = false;
+}
+
+function resetGame() {
+  coins = START_SCORE;
+  lives = START_LIVES;
+  updateStatus();
+  hideGameOver();
+  renderQuestion();
+}
+
+phaseSelect.addEventListener('change', () => {
+  if (!gameLocked) {
+    renderQuestion();
+  }
+});
 
 answerButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    const selected = Number(button.querySelector('.value').textContent);
-
-    lockButtons(true);
-
-    if (selected === currentQuestion.answer) {
-      coins += 10;
-      scoreValue.textContent = coins;
-      button.classList.add('correct');
-      setTimeout(renderQuestion, 700);
+    if (gameLocked) {
       return;
     }
 
+    const selected = Number(button.querySelector('.value').textContent);
+    const isCorrect = selected === currentQuestion.answer;
+
+    lockButtons(true);
+
+    if (isCorrect) {
+      coins += 10;
+      updateStatus();
+      setFeedback('Hebat!', 'correct');
+      button.classList.add('correct');
+      burstConfetti();
+
+      window.setTimeout(() => {
+        if (!gameLocked) {
+          renderQuestion();
+        }
+      }, 850);
+      return;
+    }
+
+    lives -= 1;
+    updateStatus();
+    setFeedback('Coba lagi yuk!', 'wrong');
     button.classList.add('wrong');
-    setTimeout(() => {
+
+    if (lives <= 0) {
+      window.setTimeout(showGameOver, 650);
+      return;
+    }
+
+    window.setTimeout(() => {
       button.classList.remove('wrong');
-      lockButtons(false);
-    }, 500);
+      if (!gameLocked) {
+        lockButtons(false);
+      }
+    }, 550);
   });
 });
 
+restartButton.addEventListener('click', resetGame);
+
+updateStatus();
 renderQuestion();
