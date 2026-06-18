@@ -39,19 +39,24 @@
     </section>
 
     <section class="card question-area">
-      <div class="mascot" aria-hidden="true">
-        <div class="star star-1"></div>
-        <div class="star star-2"></div>
-        <div class="head">
-          <div class="eye left"></div>
-          <div class="eye right"></div>
-          <div class="smile"></div>
+      <div class="mascot-wrap">
+        <div class="mascot" aria-hidden="true">
+          <div class="star star-1"></div>
+          <div class="star star-2"></div>
+          <div class="accessory hat" data-accessory="wizard-hat"></div>
+          <div class="accessory sword" data-accessory="knight-sword"></div>
+          <div class="accessory wings" data-accessory="fairy-wings"></div>
+          <div class="head">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="smile"></div>
+          </div>
+          <div class="body"></div>
+          <div class="arm arm-left"></div>
+          <div class="arm arm-right"></div>
+          <div class="leg leg-left"></div>
+          <div class="leg leg-right"></div>
         </div>
-        <div class="body"></div>
-        <div class="arm arm-left"></div>
-        <div class="arm arm-right"></div>
-        <div class="leg leg-left"></div>
-        <div class="leg leg-right"></div>
       </div>
 
       <div class="question-box">
@@ -81,6 +86,38 @@
         <span class="option">D</span>
         <span class="value">13</span>
       </button>
+    </section>
+
+    <section class="card shop">
+      <div class="shop-head">
+        <div>
+          <h3>Toko Hadiah</h3>
+          <p>Tukar 50 skor untuk membeli kosmetik maskot.</p>
+        </div>
+        <div class="shop-balance">Skor aktif: <strong id="shop-score">120</strong></div>
+      </div>
+
+      <div class="shop-grid">
+        <button class="shop-item" type="button" data-item="wizard-hat">
+          <span class="shop-icon">🧙‍♀️</span>
+          <strong>Topi Penyihir</strong>
+          <span>50 skor</span>
+        </button>
+
+        <button class="shop-item" type="button" data-item="knight-sword">
+          <span class="shop-icon">🗡️</span>
+          <strong>Pedang Ksatria</strong>
+          <span>50 skor</span>
+        </button>
+
+        <button class="shop-item" type="button" data-item="fairy-wings">
+          <span class="shop-icon">🪽</span>
+          <strong>Sayap Peri</strong>
+          <span>50 skor</span>
+        </button>
+      </div>
+
+      <p class="shop-status" id="shop-status">Belum ada hadiah yang dipakai.</p>
     </section>
   </main>
 

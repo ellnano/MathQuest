@@ -3,18 +3,41 @@ const questionTitle = document.querySelector('.question-box h2');
 const questionHint = document.querySelector('#feedback-text');
 const scoreValue = document.querySelector('#score-value');
 const livesValue = document.querySelector('#lives-value');
+const shopScoreValue = document.querySelector('#shop-score');
+const shopStatus = document.querySelector('#shop-status');
 const answerButtons = Array.from(document.querySelectorAll('.answer-btn'));
+const shopButtons = Array.from(document.querySelectorAll('.shop-item'));
 const gameOverScreen = document.querySelector('#game-over');
 const restartButton = document.querySelector('#restart-btn');
 const confettiLayer = document.querySelector('#confetti-layer');
+const mascot = document.querySelector('.mascot');
+const accessoryNodes = Array.from(document.querySelectorAll('.accessory'));
 
 const START_SCORE = 120;
 const START_LIVES = 3;
+const SHOP_PRICE = 50;
+
+const shopItems = {
+  'wizard-hat': {
+    label: 'Topi Penyihir',
+    accessoryClass: 'hat',
+  },
+  'knight-sword': {
+    label: 'Pedang Ksatria',
+    accessoryClass: 'sword',
+  },
+  'fairy-wings': {
+    label: 'Sayap Peri',
+    accessoryClass: 'wings',
+  },
+};
 
 let coins = START_SCORE;
 let lives = START_LIVES;
 let currentQuestion = null;
 let gameLocked = false;
+let ownedItems = new Set();
+let equippedItem = '';
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -127,6 +150,8 @@ function lockButtons(isLocked) {
 function updateStatus() {
   scoreValue.textContent = String(coins);
   livesValue.textContent = String(lives);
+  shopScoreValue.textContent = String(coins);
+  updateShopButtons();
 }
 
 function showGameOver() {
@@ -160,9 +185,74 @@ function renderQuestion() {
 function resetGame() {
   coins = START_SCORE;
   lives = START_LIVES;
+  ownedItems = new Set();
+  equippedItem = '';
+  accessoryNodes.forEach((node) => {
+    node.classList.remove('active');
+  });
+  mascot.dataset.equipped = '';
+  updateShopStatus('Belum ada hadiah yang dipakai.');
   updateStatus();
   hideGameOver();
   renderQuestion();
+}
+
+function updateShopStatus(message) {
+  shopStatus.textContent = message;
+}
+
+function updateShopButtons() {
+  shopButtons.forEach((button) => {
+    const itemKey = button.dataset.item;
+    const isOwned = ownedItems.has(itemKey);
+    const canBuy = coins >= SHOP_PRICE;
+
+    button.disabled = !isOwned && !canBuy;
+    button.classList.toggle('equipped', equippedItem === itemKey);
+
+    const priceLabel = button.querySelector('span:last-child');
+    if (!isOwned) {
+      priceLabel.textContent = canBuy ? '50 skor' : 'Kurang skor';
+    } else {
+      priceLabel.textContent = 'Dipakai';
+    }
+  });
+}
+
+function equipItem(itemKey) {
+  const item = shopItems[itemKey];
+
+  accessoryNodes.forEach((node) => {
+    node.classList.remove('active');
+  });
+
+  const accessory = document.querySelector(`.accessory[data-accessory="${itemKey}"]`);
+  if (accessory) {
+    accessory.classList.add('active');
+  }
+
+  equippedItem = itemKey;
+  mascot.dataset.equipped = itemKey;
+  updateShopStatus(`${item.label} sudah dipakai pada maskot.`);
+  updateShopButtons();
+}
+
+function buyItem(itemKey) {
+  if (ownedItems.has(itemKey)) {
+    equipItem(itemKey);
+    return;
+  }
+
+  if (coins < SHOP_PRICE) {
+    updateShopStatus('Skor belum cukup untuk membeli hadiah ini.');
+    return;
+  }
+
+  coins -= SHOP_PRICE;
+  ownedItems.add(itemKey);
+  updateStatus();
+  equipItem(itemKey);
+  updateShopStatus(`${shopItems[itemKey].label} berhasil dibeli dan dipakai!`);
 }
 
 phaseSelect.addEventListener('change', () => {
@@ -216,7 +306,18 @@ answerButtons.forEach((button) => {
   });
 });
 
+shopButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    if (gameLocked) {
+      return;
+    }
+
+    buyItem(button.dataset.item);
+  });
+});
+
 restartButton.addEventListener('click', resetGame);
 
 updateStatus();
+updateShopStatus('Belum ada hadiah yang dipakai.');
 renderQuestion();
